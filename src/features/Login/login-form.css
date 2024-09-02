@@ -1,0 +1,26 @@
+.login-form-wrapper {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-form-wrapper form {
+  max-width: 25rem;
+  width: 100%;
+}
+
+.login-form-wrapper .p-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form-wrapper .p-card-footer {
+  margin-top: 16px;
+}
+
+.login-form-wrapper .p-password input {
+  width: 100%;
+}
