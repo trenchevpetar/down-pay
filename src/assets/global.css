@@ -1,4 +1,11 @@
+@import './gaps.css';
+
 html,
 body {
   font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+#app {
+  padding: var(--gap-16);
 }

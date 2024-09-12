@@ -1,0 +1,13 @@
+:root {
+  --base-gap: 4px;
+  --gap-4: var(--base-gap);
+  --gap-8: calc(var(--base-gap) * 2);
+  --gap-12: calc(var(--base-gap) * 3);
+  --gap-16: calc(var(--base-gap) * 4);
+  --gap-20: calc(var(--base-gap) * 5);
+  --gap-24: calc(var(--base-gap) * 6);
+  --gap-28: calc(var(--base-gap) * 7);
+  --gap-32: calc(var(--base-gap) * 8);
+  --gap-36: calc(var(--base-gap) * 9);
+  --gap-40: calc(var(--base-gap) * 10);
+}

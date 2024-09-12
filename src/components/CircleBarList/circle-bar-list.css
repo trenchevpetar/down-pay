@@ -1,31 +1,20 @@
 .circle-bar-list {
   padding: 0;
-  display: flex;
-  gap: 16px;
-}
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  flex-wrap: wrap;
+  gap: var(--gap-16);
 
-.circle-bar-list li {
-  list-style: none;
-  position: relative;
-}
+  @media screen and (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
-.circle-bar-list .p-progressspinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
+  li {
+    list-style: none;
+    position: relative;
+  }
 
-.circle-bar-list {
-  .circle-bar-card--has-overlay:before {
-    content: '';
-    background: rgba(0, 0, 0, .9);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
+  .circle-bar-list-title {
+    margin: 0 0 var(--gap-16) 0;
   }
 }

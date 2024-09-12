@@ -21,6 +21,30 @@ export const routes = [
     }
   },
   {
+    path: '/recurring-expenses',
+    name: 'recurring.expenses',
+    component: () => import('@/views/RecurringExpensesView.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/incoming-funds',
+    name: 'incoming.funds',
+    component: () => import('@/views/IncomingFundsView.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/currency-converter',
+    name: 'currency.converter',
+    component: () => import('@/views/CurrencyConverterView.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('@/views/SettingsView.vue'),

@@ -6,13 +6,19 @@ class DebtService {
   async addDebt(debt: DebtModel) {
     const { data, error } = await supabase.from('debts').insert([debt])
 
-    if (error) {
-      console.log(error)
+    return {
+      data,
+      error
     }
+  }
 
-    console.log(data)
+  async getDebtById(id) {
+    const { data, error } = await supabase.from('debts').select('*').eq('id', id).single()
 
-    return data
+    return {
+      data,
+      error
+    }
   }
 
   async fetchDebts() {
@@ -22,11 +28,22 @@ class DebtService {
       .select('*')
       .eq('user_id', authStore.authUser.id)
 
-    if (error) {
-      console.log(error)
+    return {
+      data,
+      error
     }
+  }
 
-    return data
+  async updateDebt(id: number | string, fields: Partial<DebtModel>) {
+    const { data, error } = await supabase
+      .from('debts') // Replace 'debts' with the name of your table
+      .update(fields)
+      .eq('id', id)
+
+    return {
+      data,
+      error
+    }
   }
 
   async deleteDebt(id: number) {

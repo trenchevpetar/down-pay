@@ -20,6 +20,20 @@ class UserService {
       error
     }
   }
+
+  async getCurrency() {
+    const authStore = useAuthStore()
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('currency')
+      .eq('id', authStore.authUser.id)
+
+    return {
+      data,
+      error
+    }
+  }
 }
 
 export default new UserService()

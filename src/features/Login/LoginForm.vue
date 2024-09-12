@@ -4,8 +4,8 @@
       <Card>
         <template #title>Login</template>
         <template #content>
-          <InputText id="email" v-model="form.email" placeholder="Email" />
-          <Password id="password" v-model="form.password" toggleMask placeholder="Password" />
+          <InputText id="email" v-model="form.email" placeholder="Email" fluid />
+          <Password id="password" v-model="form.password" toggleMask placeholder="Password" fluid />
         </template>
         <template #footer>
           <Button label="Login" type="submit" icon="pi pi-sign-in" />
@@ -13,7 +13,7 @@
             as="router-link"
             to="/register"
             label="Register"
-            icon="pi pi-sign-up"
+            icon="pi pi-user-plus"
             severity="info"
           />
         </template>
@@ -25,6 +25,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -32,17 +33,48 @@ import Button from 'primevue/button'
 
 import type { LoginModel } from '@/features/Login/login.interface'
 
+import { useAuthStore } from '@/stores/auth.store'
+
 import AuthService from '@/services/auth.service'
+import UserService from '@/services/user.service'
 
 const router = useRouter()
+const toast = useToast()
+const authStore = useAuthStore();
 const form = ref<LoginModel>({
   email: '',
   password: ''
 })
 
+const setCurrency = async () => {
+  const { data, error } = await UserService.getCurrency()
+
+  if (data.length > 0) {
+    authStore.authUser.currency = data[0].currency
+  }
+
+  return {
+    data,
+    error
+  }
+}
+
 const handleSubmit = async () => {
   const { data, error } = await AuthService.login(form.value.email, form.value.password)
+  const { data: currencyData, error: currencyError } = await setCurrency()
+
+  if (currencyData && !currencyError) {
+    toast.add({
+      severity: 'success',
+      summary: 'Currency updated!'
+    })
+  }
+
   if (data && !error) {
+    toast.add({
+      severity: 'success',
+      summary: 'Login successful, redirecting to Dashboard'
+    })
     await router.push('/dashboard')
   }
 }

@@ -1,15 +1,18 @@
 <template>
   <div class="sidebar-menu">
-    <Button icon="pi pi-bars" @click="toggleDrawer" class="p-mb-2" />
-    <Drawer v-model:visible="drawerVisible" position="left" :style="{ width: '250px' }">
+    <Button icon="pi pi-bars" @click="toggleDrawer" />
+    <Drawer v-model:visible="drawerVisible" position="left" :style="{ width: '350px' }">
       <h3>Menu</h3>
-      <Menu :model="menuItems" class="p-m-0">
+      <Menu :model="menuItems">
         <template #item="{ item }">
           <Button as="router-link" v-if="item.to" :to="item.to" class="menu-link" text raised>
             <i :class="item.icon"></i>
             {{ item.label }}
           </Button>
-          <Button v-else @click="handleLogout" severity="danger" text raised> Logout </Button>
+          <Button v-else @click="handleLogout" severity="danger" text raised>
+            <i class="pi pi-sign-out"></i>
+            Logout
+          </Button>
         </template>
       </Menu>
     </Drawer>
@@ -26,6 +29,7 @@ import Drawer from 'primevue/drawer'
 import Menu from 'primevue/menu'
 import AuthService from '@/services/auth.service'
 import { useRouter } from 'vue-router'
+import { menuItems } from '@/constants/menu.const'
 
 const router = useRouter()
 
@@ -39,35 +43,8 @@ const handleLogout = async () => {
   await AuthService.logout()
   await router.push('/')
 }
-
-const menuItems = [
-  {
-    label: 'Dashboard',
-    icon: 'pi pi-home',
-    to: '/dashboard'
-  },
-  {
-    label: 'Settings',
-    icon: 'pi pi-envelope',
-    to: '/settings'
-  },
-  {
-    label: 'Logout',
-    icon: 'pi pi-sign-out'
-  }
-]
 </script>
 
 <style>
-.sidebar-menu .p-menu {
-  border: 0;
-}
-
-.content {
-  transition: margin-left 0.2s ease-in;
-}
-
-.content-shifted {
-  margin-left: 250px;
-}
+@import './sidebar-menu.css';
 </style>

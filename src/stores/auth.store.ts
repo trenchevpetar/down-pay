@@ -1,15 +1,23 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useAuthStore = defineStore('auth', () => {
-  const authUser = ref(null)
-  const authError = ref(null)
+import { getCurrencyObject } from '@/utils/currency/get.currency.object'
 
-  return {
-    authUser,
-    authError,
-    isAuthenticated: computed(() => !!authUser.value)
+export const useAuthStore = defineStore(
+  'auth',
+  () => {
+    const authUser = ref(null)
+    const authError = ref(null)
+    const currentCurrency = computed(() => getCurrencyObject(authUser.value.currency))
+
+    return {
+      authUser,
+      authError,
+      currentCurrency,
+      isAuthenticated: computed(() => !!authUser.value)
+    }
+  },
+  {
+    persist: true
   }
-}, {
-  persist: true
-})
+)

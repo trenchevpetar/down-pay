@@ -16,6 +16,7 @@
   "dependencies": {
     "@primevue/themes": "^4.0.5",
     "@supabase/supabase-js": "^2.45.1",
+    "@vueuse/core": "^11.0.3",
     "circle-progress.vue": "^3.2.1",
     "dayjs": "^1.11.13",
     "pinia": "^2.1.7",

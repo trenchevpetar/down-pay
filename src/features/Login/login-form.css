@@ -4,23 +4,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.login-form-wrapper form {
-  max-width: 25rem;
-  width: 100%;
-}
+  form {
+    max-width: 25rem;
+    width: 100%;
+  }
 
-.login-form-wrapper .p-card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+  .p-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 
-.login-form-wrapper .p-card-footer {
-  margin-top: 16px;
-}
-
-.login-form-wrapper .p-password input {
-  width: 100%;
+  .p-card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
 }

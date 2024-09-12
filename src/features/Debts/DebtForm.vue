@@ -1,8 +1,6 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <pre>
-      {{ formModel }}
-    </pre>
+    <TheSpinner :is-loading="isLoading" />
     <div class="field">
       <label for="property">Debt name</label>
       <InputText id="name" v-model="formModel.debtName" placeholder="Debt name" fluid />
@@ -17,32 +15,32 @@
       />
     </div>
     <div class="field">
-      <label for="originalBalance">Original balance (€)</label>
+      <label for="originalBalance">Original balance</label>
       <InputNumber
         id="originalBalance"
         v-model="formModel.originalBalance"
         placeholder="Original balance"
         mode="currency"
-        currency="EUR"
+        :currency="formModel.currency"
         locale="en-US"
         fluid
       />
     </div>
     <div class="field">
-      <label for="currentLeftover">Current leftover (€)</label>
+      <label for="currentLeftover">Current leftover</label>
       <InputNumber
         id="currentLeftover"
         v-model="formModel.currentLeftover"
         placeholder="Leftover to be paid"
         mode="currency"
-        currency="EUR"
+        :currency="formModel.currency"
         locale="en-US"
         fluid
       />
     </div>
     <div class="field">
       <label for="termLength">Term length (years)</label>
-      <InputNumber
+      <InputText
         id="termLength"
         v-model="formModel.termLength"
         fluid
@@ -50,15 +48,12 @@
       />
     </div>
     <div class="field">
-      <label for="totalAmountPaid">Total amount paid (€)</label>
-      <InputNumber
+      <label for="totalAmountPaid">Total amount paid</label>
+      <InputText
         disabled
         id="totalAmountPaid"
-        v-model="totalAmountPaid"
+        :model-value="formatCurrency(totalAmountPaid, formModel.currency)"
         placeholder="Total amount paid"
-        mode="currency"
-        currency="EUR"
-        locale="en-US"
         fluid
       />
     </div>
@@ -68,6 +63,17 @@
         id="status"
         v-model="formModel.status"
         :options="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        fluid
+      />
+    </div>
+    <div class="field">
+      <label for="paymentFrequency">Currency</label>
+      <Select
+        id="paymentFrequency"
+        v-model="formModel.currency"
+        :options="currencyOptions"
         optionLabel="label"
         optionValue="value"
         fluid
@@ -105,50 +111,98 @@
       />
     </div>
     <div class="field">
+      <label for="monthlyRate">Monthly rate</label>
+      <InputText id="monthlyRate" v-model="monthlyRate" disabled fluid />
+    </div>
+    <div class="field">
       <label for="endOfTerm">End of term</label>
       <InputText id="endOfTerm" v-model="formModel.endOfTerm" disabled fluid />
     </div>
     <div class="field">
-      <Button type="submit" label="Submit" icon="pi pi-check" fluid></Button>
+      <ButtonGroup>
+        <Button
+          :disabled="isLoading"
+          type="submit"
+          :label="`${isEdit ? 'Save' : 'Add'}`"
+          icon="pi pi-check"
+        />
+        <Button
+          :disabled="isLoading"
+          severity="warn"
+          label="Cancel"
+          icon="pi pi-times-circle"
+        />
+      </ButtonGroup>
     </div>
   </form>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
+import ButtonGroup from 'primevue/buttongroup'
 import Button from 'primevue/button'
 import DatePicker from 'primevue/datepicker'
 import Select from 'primevue/select'
+import TheSpinner from '@/components/Spinner/TheSpinner.vue'
 
 import type { DebtModel } from '@/features/Debts/debt.interface'
-import DebtService from '@/features/Debts/debt.service'
 
 import { currentMonthDates } from '@/utils/date/current.month.dates'
+import { currencyOptions } from '@/constants/currency.const'
+import { statusOptions } from '@/constants/status.const'
 
 import dayjs from 'dayjs'
-import { useAuthStore } from '@/stores/auth.store'
+import { useCurrencyStore } from '@/stores/currency.store'
+import { formatCurrency } from '@/utils/currency/format.currency'
+import { convertCurrency } from '@/utils/currency/convert.currency'
+import { calculateMonthlyPayment } from '@/utils/currency/monthly.payment'
 
-const authStore = useAuthStore()
-const formModel = ref<DebtModel>({
-  debtName: '',
-  holder: '',
-  originalBalance: 0,
-  currentLeftover: 0,
-  termLength: 10,
-  status: 'current',
-  debtOpenedOn: new Date(),
-  paymentFrequency: currentMonthDates.value.middleOfTheMonth,
-  interestRate: 2.4,
-  endOfTerm: dayjs()
+const currencyStore = useCurrencyStore()
+const emit = defineEmits(['on-submit'])
+const props = defineProps({
+  isEdit: {
+    type: Boolean,
+    default: false
+  },
+  isLoading: {
+    type: Boolean,
+    default: false
+  },
+  initialData: {
+    type: Object,
+    default: () => ({
+      debtName: '',
+      holder: '',
+      originalBalance: 0,
+      currentLeftover: 0,
+      currency: 'EUR',
+      termLength: 10,
+      status: 'current',
+      debtOpenedOn: new Date(),
+      paymentFrequency: currentMonthDates.value.middleOfTheMonth,
+      interestRate: 2.4,
+      endOfTerm: dayjs()
+    })
+  }
 })
+const formModel = ref<DebtModel>(props.initialData)
 
 const totalAmountPaid = computed(() => {
   if (formModel.value.currentLeftover) {
     return formModel.value.originalBalance - formModel.value.currentLeftover
   }
   return 0
+})
+
+const monthlyRate = computed(() => {
+  return calculateMonthlyPayment(
+    formModel.value.originalBalance,
+    formModel.value.interestRate,
+    formModel.value.termLength,
+    formModel.value.currency
+  )
 })
 
 const setEndOfTerm = (date = {}) => {
@@ -171,12 +225,6 @@ const setEndOfTerm = (date = {}) => {
     )
   }
 }
-
-const statusOptions = [
-  { label: 'Current', value: 'current' },
-  { label: 'Past Due', value: 'past-due' },
-  { label: 'Grace Period', value: 'grace-period' }
-]
 
 const paymentFrequencyOptions = [
   { label: '1st day of the month', value: currentMonthDates.value.firstDayOfMonth },
@@ -201,21 +249,42 @@ const onDebtOpenedChange = (value) => {
 }
 
 const onSubmit = async () => {
-  await DebtService.addDebt({
-    ...formModel.value,
-    user_id: authStore.authUser.id
+  emit('on-submit', {
+    fields: formModel
   })
 }
+
+watch(
+  () => formModel.value.currency,
+  (newValue, oldValue) => {
+    if (newValue) {
+      formModel.value.originalBalance = convertCurrency(
+        formModel.value.originalBalance,
+        oldValue,
+        newValue,
+        true,
+        currencyStore.currencies
+      )
+
+      formModel.value.currentLeftover = convertCurrency(
+        formModel.value.currentLeftover,
+        oldValue,
+        newValue,
+        true,
+        currencyStore.currencies
+      )
+    }
+  }
+)
 </script>
 
 <style scoped>
 .field {
-  margin-bottom: 1rem;
+  margin-bottom: var(--gap-16);
 }
 
 .field label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
+  margin-bottom: var(--gap-8);
 }
 </style>

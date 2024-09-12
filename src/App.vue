@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SidebarMenu from '@/components/SidebarMenu/SidebarMenu.vue'
+import Toast from 'primevue/toast'
 
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -9,6 +10,7 @@ const authStore = useAuthStore();
 <template>
   <SidebarMenu v-if="authStore.isAuthenticated" />
   <RouterView v-else />
+  <Toast />
 </template>
 
 <style>

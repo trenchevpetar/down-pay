@@ -10,12 +10,17 @@ import ToastService from 'primevue/toastservice'
 
 import App from './App.vue'
 import router from './router'
+
 import '@/middleware/user.auth.middleware'
+import '@/middleware/clear.middleware'
+
 import 'primeicons/primeicons.css'
 
 const app = createApp(App)
 const pinia = createPinia()
+
 pinia.use(piniaPluginPersistedstate)
+
 app.directive('tooltip', Tooltip)
 app
   .use(pinia)

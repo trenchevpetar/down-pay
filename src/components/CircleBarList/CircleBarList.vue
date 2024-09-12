@@ -3,11 +3,32 @@
     <li v-for="debt in items" :key="debt.id">
       <Card :class="{ 'circle-bar-card--has-overlay': isLoading }">
         <template #title>
-          <h3>{{ debt.debtName }}</h3>
-          {{ debt.holder }} - {{ debt.status.toUpperCase() }}
+          <h3 class="circle-bar-list-title">
+            {{ debt.debtName }}
+          </h3>
+          <Button disabled outlined size="small">
+            Original balance:
+            {{ formatCurrency(debt.originalBalance, debt.currency) }}
+          </Button>
+          <Divider />
+          <ButtonGroup>
+            <Button
+              severity="info"
+              icon="pi pi-building-columns"
+              v-tooltip.top="`Holder: ${debt.holder}`"
+              readonly
+            />
+            <Button
+              severity="help"
+              icon="pi pi-chart-line"
+              v-tooltip.top="`Status: ${debt.status.toUpperCase()}`"
+              readonly
+            />
+          </ButtonGroup>
         </template>
         <template #content>
           <CircleBar
+            :currency="debt.currency"
             :current-leftover="debt.currentLeftover"
             :original-balance="debt.originalBalance"
             :interest-rate="debt.interestRate"
@@ -17,23 +38,19 @@
           <Divider />
         </template>
         <template #footer>
-          <Button label="Edit" icon="pi pi-pencil" />
-          <Button
-            label="Delete"
-            icon="pi pi-trash"
-            severity="danger"
-            @click="onDeleteDebt(debt.id)"
-          />
-          <Button label="Add funds" severity="info" />
+          <ButtonGroup>
+            <Button label="Edit" icon="pi pi-pencil" @click="onEditDebt(debt.id)" />
+            <Button
+              label="Delete"
+              icon="pi pi-trash"
+              severity="danger"
+              @click="onDeleteDebt(debt.id)"
+            />
+            <Button label="Add funds" severity="info" icon="pi pi-wallet" />
+          </ButtonGroup>
         </template>
       </Card>
-      <ProgressSpinner
-        v-if="isLoading"
-        strokeWidth="4"
-        fill="transparent"
-        animationDuration=".5s"
-        aria-label="Custom ProgressSpinner"
-      />
+      <TheSpinner :is-loading="isLoading" />
     </li>
   </ul>
 </template>
@@ -42,12 +59,20 @@ import { ref } from 'vue'
 import CircleBar from '@/components/CircleBar/CircleBar.vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
-import ProgressSpinner from 'primevue/progressspinner'
+import ButtonGroup from 'primevue/buttongroup'
 import MeterGroup from 'primevue/metergroup'
 import DebtService from '@/features/Debts/debt.service'
 import Divider from 'primevue/divider'
+import TheSpinner from '@/components/Spinner/TheSpinner.vue'
+
+import { formatCurrency } from '@/utils/currency/format.currency'
 
 import type { DebtModel } from '@/features/Debts/debt.interface'
+
+const emit = defineEmits(['on-edit'])
+defineProps({
+  items: Array<DebtModel>
+})
 
 const isLoading = ref(false)
 const onDeleteDebt = async (id) => {
@@ -57,9 +82,7 @@ const onDeleteDebt = async (id) => {
   await DebtService.fetchDebts()
 }
 
-defineProps({
-  items: Array<DebtModel>
-})
+const onEditDebt = (id) => emit('on-edit', id)
 
 const meterGroupData = (debt) => {
   return [

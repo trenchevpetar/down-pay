@@ -8,16 +8,19 @@
             id="email"
             v-model="form.email"
             placeholder="Enter your email"
+            fluid
           />
           <InputText
             id="password"
             v-model="form.password"
             type="password"
             placeholder="Enter your password"
+            fluid
           />
         </template>
         <template #footer>
-          <Button type="submit" label="Register" class="p-mt-2" />
+          <Button type="submit" label="Register" />
+          <Button as="router-link" severity="info" type="submit" label="Login" to="/" />
         </template>
       </Card>
     </form>
@@ -68,7 +71,7 @@ const handleRegister = async () => {
         await router.push('/login')
       }, 1500)
     } else {
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Registration failed' })
+      toast.add({ severity: 'error', summary: 'Error', detail: error })
     }
   } else {
     toast.add({
@@ -82,10 +85,4 @@ const handleRegister = async () => {
 
 <style>
 @import './register-form.css';
-.register-form-wrapper {
-  display: flex;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
-}
 </style>
