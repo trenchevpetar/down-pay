@@ -10,7 +10,7 @@
       <h2>Add new payment</h2>
     </template>
 
-    <IncomingFundsForm />
+    <IncomingFundsForm @on-submit="onSubmit" />
   </Dialog>
 </template>
 
@@ -22,5 +22,17 @@ import Dialog from 'primevue/dialog'
 
 import IncomingFundsForm from '@/features/IncomingFunds/IncomingFundsForm.vue'
 
-const showModal = ref(false);
+import IncomingFundsService from '@/features/IncomingFunds/incoming.funds.service'
+
+import { useAuthStore } from '@/stores/auth.store'
+
+const showModal = ref(false)
+const authStore = useAuthStore()
+
+const onSubmit = async (fields) => {
+  await IncomingFundsService.addIncomingFunds({
+    ...fields,
+    user_id: authStore.authUser.id
+  })
+}
 </script>

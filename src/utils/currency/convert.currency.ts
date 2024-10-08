@@ -23,12 +23,8 @@ export function convertCurrency(
     throw new InvalidCurrencyError('Invalid currency')
   }
 
-  // Convert to EUR first (EUR is the base currency)
-  const amountInEUR = fromCurrency === 'EUR' ? amount : amount / exchangeRates[fromCurrency]
-
-  // Convert from EUR to the target currency
-  const convertedAmount =
-    toCurrency === 'EUR' ? amountInEUR : amountInEUR * exchangeRates[toCurrency]
+  const amountInEUR = amount / exchangeRates[fromCurrency]
+  const convertedAmount = amountInEUR * exchangeRates[toCurrency]
 
   if (isClean) return cleanFormatCurrency(convertedAmount, toCurrency)
   return formatCurrency(convertedAmount, toCurrency)

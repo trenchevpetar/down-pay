@@ -1,14 +1,14 @@
-import { useAuthStore } from '@/stores/auth.store'
+import { useSettingsStore } from '@/stores/settings.store'
 
 import { targetCurrencies } from '@/constants/currency.const'
 
 class CurrencyService {
   async fetchExchangeRates() {
-    const authStore = useAuthStore()
+    const settingsStore = useSettingsStore()
 
     try {
       const response = await fetch(
-        `https://api.exchangerate-api.com/v4/latest/${authStore.currentCurrency.value}`
+        `https://api.exchangerate-api.com/v4/latest/${settingsStore.currentCurrency.value}`
       )
       const data = await response.json()
 

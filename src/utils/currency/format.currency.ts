@@ -1,7 +1,7 @@
 export const formatCurrency = (value: number, currencyCode: string): string => {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: currencyCode
+    currency: currencyCode || 'EUR'
   })
   return formatter.format(value)
 }

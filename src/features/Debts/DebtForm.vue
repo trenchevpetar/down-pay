@@ -1,6 +1,9 @@
 <template>
   <form @submit.prevent="onSubmit">
     <TheSpinner :is-loading="isLoading" />
+    <pre>
+      {{ debtStore.debtForEdit }}
+    </pre>
     <div class="field">
       <label for="property">Debt name</label>
       <InputText id="name" v-model="formModel.debtName" placeholder="Debt name" fluid />
@@ -62,16 +65,16 @@
       <Select
         id="status"
         v-model="formModel.status"
-        :options="statusOptions"
+        :options="debtStatusOptions"
         optionLabel="label"
         optionValue="value"
         fluid
       />
     </div>
     <div class="field">
-      <label for="paymentFrequency">Currency</label>
+      <label for="currency">Currency</label>
       <Select
-        id="paymentFrequency"
+        id="currency"
         v-model="formModel.currency"
         :options="currencyOptions"
         optionLabel="label"
@@ -97,6 +100,9 @@
         v-model="formModel.debtOpenedOn"
         @update:model-value="onDebtOpenedChange"
         fluid
+        show-icon
+        show-button-bar
+        date-format="dd/mm/yy"
       />
     </div>
     <div class="field">
@@ -131,6 +137,7 @@
           severity="warn"
           label="Cancel"
           icon="pi pi-times-circle"
+          @click="emit('on-cancel')"
         />
       </ButtonGroup>
     </div>
@@ -151,17 +158,19 @@ import type { DebtModel } from '@/features/Debts/debt.interface'
 
 import { currentMonthDates } from '@/utils/date/current.month.dates'
 import { currencyOptions } from '@/constants/currency.const'
-import { statusOptions } from '@/constants/status.const'
+import { debtStatusOptions } from '@/constants/status.const'
 
 import dayjs from 'dayjs'
 import { useCurrencyStore } from '@/stores/currency.store'
 import { formatCurrency } from '@/utils/currency/format.currency'
 import { convertCurrency } from '@/utils/currency/convert.currency'
 import { calculateMonthlyPayment } from '@/utils/currency/monthly.payment'
+import { useDebtStore } from '@/stores/debt.store'
 
 const currencyStore = useCurrencyStore()
-const emit = defineEmits(['on-submit'])
-const props = defineProps({
+const debtStore = useDebtStore()
+const emit = defineEmits(['on-submit', 'on-cancel'])
+defineProps({
   isEdit: {
     type: Boolean,
     default: false
@@ -169,25 +178,10 @@ const props = defineProps({
   isLoading: {
     type: Boolean,
     default: false
-  },
-  initialData: {
-    type: Object,
-    default: () => ({
-      debtName: '',
-      holder: '',
-      originalBalance: 0,
-      currentLeftover: 0,
-      currency: 'EUR',
-      termLength: 10,
-      status: 'current',
-      debtOpenedOn: new Date(),
-      paymentFrequency: currentMonthDates.value.middleOfTheMonth,
-      interestRate: 2.4,
-      endOfTerm: dayjs()
-    })
   }
 })
-const formModel = ref<DebtModel>(props.initialData)
+
+const formModel = ref<DebtModel>(debtStore.debtForEdit)
 
 const totalAmountPaid = computed(() => {
   if (formModel.value.currentLeftover) {
@@ -205,25 +199,13 @@ const monthlyRate = computed(() => {
   )
 })
 
-const setEndOfTerm = (date = {}) => {
-  formModel.value.endOfTerm = dayjs()
+const setEndOfTerm = () => {
+  formModel.value.endOfTerm = dayjs(formModel.value.debtOpenedOn).add(
+    formModel.value.termLength,
+    'y'
+  )
 
-  if (date.day) {
-    formModel.value.endOfTerm = dayjs(formModel.value.endOfTerm).set('date', date.day)
-  }
-  if (date.month) {
-    formModel.value.endOfTerm = dayjs(formModel.value.endOfTerm).set('month', date.month)
-  }
-  if (date.year) {
-    formModel.value.endOfTerm = dayjs(formModel.value.endOfTerm).set('year', date.year)
-  } else {
-    const getYear = dayjs(formModel.value.endOfTerm).year()
-
-    formModel.value.endOfTerm = dayjs(formModel.value.endOfTerm).set(
-      'year',
-      getYear + formModel.value.termLength
-    )
-  }
+  formModel.value.endOfTerm = new Date(formModel.value.endOfTerm).toDateString()
 }
 
 const paymentFrequencyOptions = [
@@ -232,32 +214,24 @@ const paymentFrequencyOptions = [
   { label: 'Last day of the month', value: currentMonthDates.value.lastDayOfMonth }
 ]
 
-const onTermLengthChange = (value) => {
-  setEndOfTerm({
-    day: dayjs().date(),
-    month: dayjs().month(),
-    year: dayjs().year() + value
-  })
-}
-
-const onDebtOpenedChange = (value) => {
-  setEndOfTerm({
-    day: dayjs(value).date(),
-    month: dayjs(value).month(),
-    year: null
-  })
-}
+const onTermLengthChange = () => setEndOfTerm()
+const onDebtOpenedChange = () => setEndOfTerm()
 
 const onSubmit = async () => {
   emit('on-submit', {
-    fields: formModel
+    fields: formModel.value
   })
 }
 
 watch(
+  () => debtStore.debtForEdit.value,
+  (value) => (formModel.value = value)
+)
+watch(
   () => formModel.value.currency,
   (newValue, oldValue) => {
     if (newValue) {
+      // converting from one currency to the one selected from the form
       formModel.value.originalBalance = convertCurrency(
         formModel.value.originalBalance,
         oldValue,
@@ -277,14 +251,3 @@ watch(
   }
 )
 </script>
-
-<style scoped>
-.field {
-  margin-bottom: var(--gap-16);
-}
-
-.field label {
-  display: block;
-  margin-bottom: var(--gap-8);
-}
-</style>

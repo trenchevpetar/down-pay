@@ -1,0 +1,10 @@
+form {
+  .field {
+    margin-bottom: var(--gap-16);
+  }
+
+  .field label {
+    display: block;
+    margin-bottom: var(--gap-8);
+  }
+}

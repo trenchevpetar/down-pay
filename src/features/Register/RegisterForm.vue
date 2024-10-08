@@ -4,12 +4,8 @@
       <Card title="Register">
         <template #title>Register</template>
         <template #content>
-          <InputText
-            id="email"
-            v-model="form.email"
-            placeholder="Enter your email"
-            fluid
-          />
+          <InputText id="name" v-model="form.name" placeholder="Enter your name" fluid />
+          <InputText id="email" v-model="form.email" placeholder="Enter your email" fluid />
           <InputText
             id="password"
             v-model="form.password"
@@ -37,9 +33,10 @@ import Card from 'primevue/card'
 import AuthService from '@/services/auth.service'
 import type { RegisterModel } from '@/features/Register/register.interface'
 
-const toast = useToast();
+const toast = useToast()
 const router = useRouter()
 const form = ref<RegisterModel>({
+  name: '',
   email: '',
   password: ''
 })
@@ -60,7 +57,11 @@ const handleRegister = async () => {
   }
 
   if (Object.keys(errors.value).length === 0) {
-    const { data, error } = await AuthService.register(form.value.email, form.value.password)
+    const { data, error } = await AuthService.register(
+      form.value.email,
+      form.value.password,
+      form.value.name
+    )
     if (data && !error) {
       toast.add({
         severity: 'success',

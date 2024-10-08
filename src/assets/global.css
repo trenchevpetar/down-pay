@@ -1,4 +1,5 @@
 @import './gaps.css';
+@import './form.css';
 
 html,
 body {
@@ -8,4 +9,8 @@ body {
 
 #app {
   padding: var(--gap-16);
+}
+
+#app:has(.login-form-wrapper) {
+  padding: 0;
 }

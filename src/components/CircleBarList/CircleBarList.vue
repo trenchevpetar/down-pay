@@ -1,6 +1,6 @@
 <template>
   <ul class="circle-bar-list">
-    <li v-for="debt in items" :key="debt.id">
+    <li v-for="debt in items" :key="debt.$id">
       <Card :class="{ 'circle-bar-card--has-overlay': isLoading }">
         <template #title>
           <h3 class="circle-bar-list-title">
@@ -39,12 +39,12 @@
         </template>
         <template #footer>
           <ButtonGroup>
-            <Button label="Edit" icon="pi pi-pencil" @click="onEditDebt(debt.id)" />
+            <Button label="Edit" icon="pi pi-pencil" @click="onEditDebt(debt.$id)" />
             <Button
               label="Delete"
               icon="pi pi-trash"
               severity="danger"
-              @click="onDeleteDebt(debt.id)"
+              @click="onDeleteDebt(debt.$id)"
             />
             <Button label="Add funds" severity="info" icon="pi pi-wallet" />
           </ButtonGroup>

@@ -33,40 +33,23 @@ import Button from 'primevue/button'
 
 import type { LoginModel } from '@/features/Login/login.interface'
 
-import { useAuthStore } from '@/stores/auth.store'
-
 import AuthService from '@/services/auth.service'
-import UserService from '@/services/user.service'
 
 const router = useRouter()
 const toast = useToast()
-const authStore = useAuthStore();
 const form = ref<LoginModel>({
   email: '',
   password: ''
 })
 
-const setCurrency = async () => {
-  const { data, error } = await UserService.getCurrency()
-
-  if (data.length > 0) {
-    authStore.authUser.currency = data[0].currency
-  }
-
-  return {
-    data,
-    error
-  }
-}
-
 const handleSubmit = async () => {
   const { data, error } = await AuthService.login(form.value.email, form.value.password)
-  const { data: currencyData, error: currencyError } = await setCurrency()
 
-  if (currencyData && !currencyError) {
+  if (error) {
     toast.add({
-      severity: 'success',
-      summary: 'Currency updated!'
+      severity: 'warn',
+      summary: error,
+      life: 3000
     })
   }
 

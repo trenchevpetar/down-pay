@@ -1,10 +1,5 @@
 <template>
-  <Button
-    label="Add new debt"
-    @click="showModal = true"
-    severity="secondary"
-    icon="pi pi-credit-card"
-  />
+  <Button label="Add new debt" @click="onAdd" severity="secondary" icon="pi pi-credit-card" />
   <Dialog
     v-model:visible="showModal"
     modal
@@ -19,26 +14,27 @@
     </template>
 
     <DebtForm
-      v-if="Object.keys(debtData).length"
-      :key="debtData?.created_at"
-      :initial-data="debtData"
       :is-loading="isLoading"
       :is-edit="isEdit"
       @on-submit="onSubmit"
+      @on-cancel="onCancel"
     />
   </Dialog>
 </template>
 
 <script lang="ts" setup>
-import { defineModel, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import DebtForm from '@/features/Debts/DebtForm.vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import DebtService from '@/features/Debts/debt.service'
 import { useAuthStore } from '@/stores/auth.store'
 import { useToast } from 'primevue/usetoast'
+import { useDebtStore } from '@/stores/debt.store'
+import { defaultDebt } from '@/features/Debts/default.debt'
 
 const authStore = useAuthStore()
+const debtStore = useDebtStore()
 const toast = useToast()
 
 const isLoading = ref(false)
@@ -48,7 +44,7 @@ const props = defineProps({
     default: false
   },
   debtId: {
-    type: Number,
+    type: String,
     default: null
   }
 })
@@ -56,15 +52,21 @@ const props = defineProps({
 const emit = defineEmits(['on-modal-after-hide'])
 
 const showModal = defineModel(false)
-const debtData = ref({})
 const onModalAfterHide = () => emit('on-modal-after-hide')
+
+const onAdd = () => {
+  debtStore.debtForEdit = defaultDebt()
+  showModal.value = true
+}
+
+const onCancel = () => (showModal.value = false)
 
 const onSubmit = async ({ fields }) => {
   isLoading.value = true
   if (props.isEdit) {
     const { error } = await DebtService.updateDebt(props.debtId, {
-      ...fields.value,
-      user_id: authStore.authUser.id
+      ...fields,
+      userId: authStore.authUser.$id
     })
 
     if (error) {
@@ -82,8 +84,8 @@ const onSubmit = async ({ fields }) => {
     }
   } else {
     const { error } = await DebtService.addDebt({
-      ...fields.value,
-      user_id: authStore.authUser.id
+      ...fields,
+      userId: authStore.authUser.$id
     })
 
     if (error) {
@@ -108,8 +110,9 @@ watch(
   async (value) => {
     if (value && props.debtId) {
       isLoading.value = true
-      const { data } = await DebtService.getDebtById(props.debtId)
-      debtData.value = data
+      const response = await DebtService.getDebtById(props.debtId)
+      console.log(response)
+      debtStore.debtForEdit = response
       isLoading.value = false
     }
   }

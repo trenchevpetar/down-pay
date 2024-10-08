@@ -21,7 +21,7 @@
       class="p-mt-2"
       @click="onSave"
       :loading="isLoading"
-      :disabled="authStore.authUser.currency === selectedCurrency"
+      :disabled="settingsStore.currentCurrency.value === selectedCurrency"
     />
   </div>
 </template>
@@ -33,22 +33,22 @@ import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 
 import { useToast } from 'primevue/usetoast'
-import { useAuthStore } from '@/stores/auth.store'
 import { useCurrencyStore } from '@/stores/currency.store'
-import UserService from '@/services/user.service'
+import { useSettingsStore } from '@/stores/settings.store'
+import SettingsService from '@/services/settings.service'
 
 import { currencyOptions } from '@/constants/currency.const'
 
-const authStore = useAuthStore()
 const currencyStore = useCurrencyStore();
+const settingsStore = useSettingsStore();
 const toast = useToast()
 const isLoading = ref(false)
 
-const selectedCurrency = ref<string | null>(authStore.authUser?.currency)
+const selectedCurrency = ref<string | null>(settingsStore.defaultCurrency)
 
 const onSave = async () => {
   isLoading.value = true
-  const { error } = await UserService.changeCurrency(selectedCurrency.value)
+  const { error } = await SettingsService.changeCurrency(selectedCurrency.value)
 
   if (!error) {
     await currencyStore.fetchCurrencies()

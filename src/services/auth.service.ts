@@ -1,20 +1,24 @@
-import { supabase } from '@/api/client'
+import { account } from '@/api/client'
 import { useAuthStore } from '@/stores/auth.store'
 
 class AuthService {
   async login(email: string, password: string) {
+    let data, error, currentUser
     const authStore = useAuthStore()
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+
+    try {
+      data = await account.createEmailPasswordSession(email, password)
+      currentUser = await account.get()
+    } catch (err) {
+      error = err
+    }
 
     if (error) {
       authStore.authError = error
     }
 
     if (data) {
-      authStore.authUser = data.user
+      authStore.authUser = currentUser
     }
 
     return {
@@ -25,18 +29,16 @@ class AuthService {
 
   async logout() {
     const authStore = useAuthStore()
-    await supabase.auth.signOut()
-
-    authStore.authUser = null
+    try {
+      await account.deleteSession('current')
+      authStore.authUser = null
+    } catch (err) {
+      console.log('logout failed', err)
+    }
   }
 
-  async register(email: string, password: string) {
-    const { user, error } = await supabase.auth.signUp({ email, password })
-
-    return {
-      user,
-      error
-    }
+  async register(email: string, password: string, name: string) {
+    await account.create('unique()', email, password, name)
   }
 }
 

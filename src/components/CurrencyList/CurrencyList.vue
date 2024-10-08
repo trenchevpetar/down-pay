@@ -1,12 +1,12 @@
 <template>
   <h2>Currency Converter</h2>
   <InputGroup>
-    <InputGroupAddon> 1 {{ authStore.currentCurrency.value }} </InputGroupAddon>
+    <InputGroupAddon> 1 {{ settingsStore.currentCurrency.value }} </InputGroupAddon>
     <InputNumber
       v-model="amount"
       :min="0"
       mode="currency"
-      :currency="authStore.currentCurrency.value"
+      :currency="settingsStore.currentCurrency.value"
       locale="en-US"
     />
     <Button @click="convertAll" label="Convert" />
@@ -14,7 +14,7 @@
   <Divider />
   <DataTable :value="currencyList">
     <Column field="currency" header="Currency"></Column>
-    <Column field="rate" :header="`Exchange Rate (1 ${authStore.currentCurrency.value})`">
+    <Column field="rate" :header="`Exchange Rate (1 ${settingsStore.currentCurrency.value})`">
       <template #body="slotProps">
         {{ slotProps.data.rate.toFixed(4) }}
       </template>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputNumber from 'primevue/inputnumber'
@@ -37,15 +37,15 @@ import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
 import Divider from 'primevue/divider'
 
-import { useAuthStore } from '@/stores/auth.store'
 import { useCurrencyStore } from '@/stores/currency.store'
+import { useSettingsStore } from '@/stores/settings.store'
 
-import { convertCurrency, ExchangeRates } from '@/utils/currency/convert.currency'
+import { convertCurrency } from '@/utils/currency/convert.currency'
 
 const amount = ref<number>(1)
-const authStore = useAuthStore()
 const currencyStore = useCurrencyStore()
-const exchangeRates = ref<ExchangeRates>(currencyStore.currencies)
+const settingsStore = useSettingsStore()
+const exchangeRates = ref(currencyStore.currencies)
 
 interface CurrencyItem {
   currency: string
@@ -66,8 +66,9 @@ const convertAll = () => {
     try {
       item.convertedAmount = convertCurrency(
         amount.value,
-        authStore.currentCurrency.value,
+        settingsStore.currentCurrency.value,
         item.currency,
+        false,
         exchangeRates.value
       )
     } catch (error) {
@@ -77,6 +78,5 @@ const convertAll = () => {
   })
 }
 
-// Initial conversion
-convertAll()
+onMounted(() => convertAll())
 </script>
