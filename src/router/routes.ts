@@ -17,13 +17,13 @@ export const routes = [
     name: 'dashboard',
     component: () => import('@/views/DashboardView.vue'),
     meta: {
-      requiresAuth: true
+      // requiresAuth: true
     }
   },
   {
-    path: '/recurring-expenses',
-    name: 'recurring.expenses',
-    component: () => import('@/views/RecurringExpensesView.vue'),
+    path: '/invoices',
+    name: 'invoices',
+    component: () => import('@/views/InvoicesView.vue'),
     meta: {
       requiresAuth: true
     }

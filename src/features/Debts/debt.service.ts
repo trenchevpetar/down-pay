@@ -67,16 +67,12 @@ class DebtService {
   async updateDebt(id: number | string, fields: Partial<DebtModel>) {
     let error = null
 
-    console.log(id)
-    console.log(fields)
-
     // getDebtById returns $databaseId, $collectionId etc
     // but this method does not accept those because row does not contain such props
-
-    const stripped = this.stripUnnecessaryFields(fields, defaultDebt());
+    const strippedFields = this.stripUnnecessaryFields(fields, defaultDebt());
 
     try {
-      await database.updateDocument(this.db, this.collection, id, stripped)
+      await database.updateDocument(this.db, this.collection, id, strippedFields)
     } catch (err) {
       error = err
     }

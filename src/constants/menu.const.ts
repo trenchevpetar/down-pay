@@ -16,9 +16,9 @@ export const menuItems: MenuItem[] = [
     to: '/settings'
   },
   {
-    label: 'Recurring Expenses',
+    label: 'Invoices',
     icon: 'pi pi-credit-card',
-    to: '/recurring-expenses'
+    to: '/invoices'
   },
   {
     label: 'Incoming Funds',

@@ -34,7 +34,7 @@ const showDebtModal = ref(false)
 const isEditMode = ref(false)
 const debtId = ref(null)
 const debtStore = useDebtStore()
-const debts = computed(() => debtStore.debts);
+const debts = computed(() => debtStore.debts)
 
 const onEditDebt = (id) => {
   debtId.value = id

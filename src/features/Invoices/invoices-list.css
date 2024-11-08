@@ -1,0 +1,10 @@
+.invoices-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0;
+  column-gap: var(--gap-16);
+
+  li {
+    list-style-type: none;
+  }
+}

@@ -11,6 +11,8 @@ import ToastService from 'primevue/toastservice'
 import App from './App.vue'
 import router from './router'
 
+// import '@/bank/connection'
+
 import '@/middleware/user.auth.middleware'
 import '@/middleware/clear.middleware'
 
@@ -29,7 +31,10 @@ app
   .use(PrimeVue, {
     ripple: true,
     theme: {
-      preset: Aura
+      preset: Aura,
+      options: {
+        // darkModeSelector: 'none'
+      }
     }
   })
   .mount('#app')
