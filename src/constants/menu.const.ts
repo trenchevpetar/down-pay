@@ -30,8 +30,4 @@ export const menuItems: MenuItem[] = [
     icon: 'pi pi-arrow-right-arrow-left',
     to: '/currency-converter'
   },
-  {
-    label: 'Logout',
-    icon: 'pi pi-sign-out'
-  }
 ]

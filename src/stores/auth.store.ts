@@ -7,9 +7,19 @@ export const useAuthStore = defineStore(
     const authUser = ref(null)
     const authError = ref(null)
 
+    const setAuthUser = (user) => {
+      authUser.value = user;
+    }
+
+    const setAuthError = (error) => {
+      authError.value = error
+    }
+
     return {
       authUser,
       authError,
+      setAuthUser,
+      setAuthError,
       isAuthenticated: computed(() => !!authUser.value)
     }
   },

@@ -11,18 +11,18 @@ class DebtService {
     this.collection = 'debts-collection'
   }
 
-  stripUnnecessaryFields = <T>(input: any, model: T): T => {
-    const allowedFields = Object.keys(model) as Array<keyof T>;
-    const result: Partial<T> = {};
+  stripUnnecessaryFields = <T>(input: never, model: T): T => {
+    const allowedFields = Object.keys(model) as Array<keyof T>
+    const result: Partial<T> = {}
 
     allowedFields.forEach((key) => {
       if (input[key] !== undefined) {
-        result[key] = input[key];
+        result[key] = input[key]
       }
-    });
+    })
 
-    return result as T;
-  };
+    return result as T
+  }
 
   async addDebt(debt: DebtModel) {
     let error = null
@@ -69,7 +69,7 @@ class DebtService {
 
     // getDebtById returns $databaseId, $collectionId etc
     // but this method does not accept those because row does not contain such props
-    const strippedFields = this.stripUnnecessaryFields(fields, defaultDebt());
+    const strippedFields = this.stripUnnecessaryFields(fields, defaultDebt())
 
     try {
       await database.updateDocument(this.db, this.collection, id, strippedFields)

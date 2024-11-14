@@ -10,16 +10,19 @@
     <IncomingFundsModal />
   </ButtonGroup>
   <IncomingFundsHeader />
-  <CircleBarList v-if="!isLoading" :items="debts" @on-edit="onEditDebt" />
+  <CircleBarList
+    :items="debts"
+    @on-edit="onEditDebt"
+    @on-delete="onDeleteDebt"
+    :is-loading="isLoading"
+  />
   <IncomingFunds />
-  <TheSpinner :is-loading="isLoading" />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
 import CircleBarList from '@/components/CircleBarList/CircleBarList.vue'
-import TheSpinner from '@/components/Spinner/TheSpinner.vue'
 
 import DebtModal from '@/features/Debts/DebtModal.vue'
 import IncomingFundsModal from '@/features/IncomingFunds/IncomingFundsModal.vue'
@@ -40,6 +43,13 @@ const onEditDebt = (id) => {
   debtId.value = id
   showDebtModal.value = true
   isEditMode.value = true
+}
+
+const onDeleteDebt = async (id) => {
+  isLoading.value = true
+  await DebtService.deleteDebt(id)
+  isLoading.value = false
+  await DebtService.fetchDebts()
 }
 
 const onModalAfterHide = () => {

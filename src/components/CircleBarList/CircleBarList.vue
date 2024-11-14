@@ -1,6 +1,10 @@
 <template>
   <ul class="circle-bar-list">
+    <TheSpinner v-if="isLoading" />
     <li v-for="debt in items" :key="debt.$id">
+      <pre>
+        {{ debt }}
+      </pre>
       <Card :class="{ 'circle-bar-card--has-overlay': isLoading }">
         <template #title>
           <h3 class="circle-bar-list-title">
@@ -55,13 +59,11 @@
   </ul>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
 import CircleBar from '@/components/CircleBar/CircleBar.vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'
 import MeterGroup from 'primevue/metergroup'
-import DebtService from '@/features/Debts/debt.service'
 import Divider from 'primevue/divider'
 import TheSpinner from '@/components/Spinner/TheSpinner.vue'
 
@@ -69,19 +71,16 @@ import { formatCurrency } from '@/utils/currency/format.currency'
 
 import type { DebtModel } from '@/features/Debts/debt.interface'
 
-const emit = defineEmits(['on-edit'])
+const emit = defineEmits(['on-edit', 'on-delete'])
 defineProps({
-  items: Array<DebtModel>
+  items: Array<DebtModel>,
+  isLoading: {
+    type: Boolean,
+    default: false
+  }
 })
 
-const isLoading = ref(false)
-const onDeleteDebt = async (id) => {
-  isLoading.value = true
-  await DebtService.deleteDebt(id)
-  isLoading.value = false
-  await DebtService.fetchDebts()
-}
-
+const onDeleteDebt = (id) => emit('on-delete', id)
 const onEditDebt = (id) => emit('on-edit', id)
 
 const meterGroupData = (debt) => {

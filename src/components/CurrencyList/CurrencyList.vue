@@ -1,5 +1,6 @@
 <template>
   <h2>Currency Converter</h2>
+  <p>Change currency in <RouterLink to="/settings">Settings</RouterLink></p>
   <InputGroup>
     <InputGroupAddon> 1 {{ settingsStore.currentCurrency.value }} </InputGroupAddon>
     <InputNumber

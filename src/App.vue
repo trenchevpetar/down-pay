@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import SidebarMenu from '@/components/SidebarMenu/SidebarMenu.vue'
+import TheHeader from '@/components/TheHeader/TheHeader.vue'
 import Toast from 'primevue/toast'
+import TheSpinner from '@/components/Spinner/TheSpinner.vue'
 
 import { useAuthStore } from '@/stores/auth.store'
+import { ref } from 'vue'
+import { emitter } from '@/utils/emitter/emitter'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
+const isLoading = ref(false)
+
+emitter.on('SET_LOADING', (value) => {
+  isLoading.value = value
+})
 </script>
 
 <template>
-  <SidebarMenu v-if="authStore.isAuthenticated" />
+  <TheSpinner :is-loading="isLoading" />
+  <TheHeader v-if="authStore.isAuthenticated" />
   <RouterView v-else />
   <Toast />
 </template>
